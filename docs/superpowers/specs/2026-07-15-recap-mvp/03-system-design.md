@@ -68,7 +68,7 @@ Responsibilities:
 - establish the human P2P audio connection;
 - request an ephemeral OpenAI transcription session from the server;
 - send local audio to its transcription session;
-- attach the authenticated room participant ID to transcript deltas;
+- attach the server-issued, socket-bound room participant ID to transcript deltas;
 - render room presence, live transcript, AI state, evidence, and Decision Wiki;
 - play server-broadcast AI audio; and
 - surface reconnect and text-only fallbacks.
@@ -104,7 +104,7 @@ It validates all arguments with Zod. The model can request a tool, but the serve
 
 ### OpenAI transcription sessions
 
-Each browser uses its own transcription session so speaker identity comes from the authenticated participant connection rather than model diarization. Partial text stays ephemeral in the client; final transcript segments are sent to the room server and persisted.
+Each browser uses its own transcription session so speaker identity comes from the server-issued participant connection rather than model diarization. Partial text is sent through the room server for live display but is not persisted; final transcript segments are sent to the room server and persisted.
 
 ### GPT-5.6 Sol reasoning service
 
@@ -173,7 +173,7 @@ PostgreSQL stores durable meeting state and seeded historical evidence. It is no
 - `id`: UUID
 - `meeting_id`: foreign key
 - `title`
-- `status`: `proposed | accepted`
+- `status`: `accepted` in the MVP; unapproved drafts remain in room memory
 - `decision_text`
 - `rationale`: JSONB array
 - `owner`: nullable
@@ -227,7 +227,7 @@ The Build Week demo is tested on one local network. A production TURN service an
 
 1. Each client requests a short-lived transcription session from the server.
 2. The client sends only its local microphone audio to OpenAI.
-3. Partial deltas render locally and are optionally broadcast for visual continuity.
+3. Partial deltas render locally and are broadcast through the room server for visual continuity, but they are not persisted.
 4. Final segments are tagged with the participant ID and room timestamp.
 5. The server persists and broadcasts final segments in meeting order.
 

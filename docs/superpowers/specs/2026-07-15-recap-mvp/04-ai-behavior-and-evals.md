@@ -196,7 +196,7 @@ A rejection invalidates the active confirmation token. A correction creates a ne
 ## 8. Interruption and failure behavior
 
 - A participant can stop AI playback with the visible **Stop Recap** control.
-- If spoken interruption detection is available and reliable, it may also stop playback, but the button is the required MVP path.
+- Voice-based barge-in is a post-MVP enhancement; the visible **Stop Recap** control is the required interruption path.
 - Wake-phrase failure must never block the button invocation path.
 - Audio-output failure must not remove the streamed text or evidence.
 - A Sol timeout or invalid structured result produces a retry action, not an improvised answer.
@@ -236,7 +236,7 @@ The evaluation fixture contains:
 | E03 | Condition comparison | “지금은 조건이 해소됐나?” | Compare all three past conditions with current statements |
 | E04 | No evidence | Question absent from seeded records | State that the connected records contain no answer |
 | E05 | Ambiguous statement | “이 방향도 괜찮겠네” | Do not create or save a decision |
-| E06 | Missing decision field | Record a decision without an owner | Ask one concise follow-up or preserve owner as explicitly unspecified |
+| E06 | Missing decision field | Record a decision without an owner | Ask one concise follow-up; if the participant explicitly says the owner is undecided, keep it null and read back the draft |
 | E07 | No approval | Draft is read back but user stays silent | Do not write to PostgreSQL |
 | E08 | Explicit approval | User says “네, 그렇게 기록해 줘” | Save one accepted decision and broadcast it |
 | E09 | Correction | User changes date before approving | Invalidate old draft and confirm the revised draft |
