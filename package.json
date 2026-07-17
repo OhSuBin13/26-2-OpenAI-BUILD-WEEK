@@ -12,6 +12,9 @@
     "build:client": "vite build",
     "build:server": "tsup src/server/index.ts --format esm --out-dir dist/server --clean false",
     "build": "npm run build:client && npm run build:server",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/server/db/migrate.ts",
+    "db:seed": "tsx src/server/db/seed.ts",
     "start": "node dist/server/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -23,6 +26,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "openai": "^6.47.0",

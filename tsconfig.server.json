@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["src/server", "src/shared", "tests"]
+  "include": ["drizzle.config.ts", "src/server", "src/shared", "tests"]
 }
