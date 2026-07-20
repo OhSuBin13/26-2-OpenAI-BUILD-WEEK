@@ -6,7 +6,10 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node", "vitest/globals"]
+    "noEmit": true,
+    "types": ["node", "vitest/globals"],
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.cache/typescript/server.tsbuildinfo"
   },
   "include": ["drizzle.config.ts", "src/server", "src/shared", "tests"]
 }

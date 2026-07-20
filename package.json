@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "concurrently -k \"vite\" \"tsx watch src/server/index.ts\"",
     "build:client": "vite build",
-    "build:server": "tsup src/server/index.ts --format esm --out-dir dist/server --clean false",
+    "build:server": "tsup src/server/index.ts --format esm --out-dir dist/server --clean false --tsconfig tsconfig.server.json",
     "build": "npm run build:client && npm run build:server",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/server/db/migrate.ts",
@@ -19,7 +19,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit"
+    "typecheck": "tsc -p tsconfig.client.json --noEmit && tsc -p tsconfig.server.json --noEmit"
   },
   "keywords": [],
   "author": "",
