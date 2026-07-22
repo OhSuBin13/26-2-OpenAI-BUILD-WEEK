@@ -7,13 +7,16 @@ import { createDb } from "./db/client";
 import { participants } from "./db/schema";
 import { parseEnv } from "./env";
 import { RoomRepository } from "./repositories/room-repository";
+import { TranscriptRepository } from "./repositories/transcript-repository";
 import { hashCapability } from "./rooms/capability";
 import { registerRoomGateway } from "./rooms/register-room-gateway";
 import { RoomService, type ParticipantStore } from "./rooms/room-service";
+import { createTranscriptRoomEventHook } from "./transcription/create-transcript-room-event-hook";
 
 const env = parseEnv(process.env);
 const db = createDb(env.DATABASE_URL);
 const roomRepository = new RoomRepository(db);
+const transcriptRepository = new TranscriptRepository(db);
 const participantStore: ParticipantStore = {
   async insert(input) {
     await db.insert(participants).values(input);
@@ -26,14 +29,19 @@ const participantStore: ParticipantStore = {
   },
 };
 const roomService = new RoomService(roomRepository, participantStore, hashCapability);
-const app = createApp(env, roomRepository);
+const app = createApp(env, roomRepository, {
+  transcription: {
+    verifyCapability: roomRepository.verifyCapability.bind(roomRepository),
+    getParticipant: roomService.getParticipant.bind(roomService),
+  },
+});
 const httpServer = createServer(app);
 const io = new SocketIoServer(httpServer, {
   cors: { origin: env.APP_ORIGIN },
 });
 
 const roomGateway = registerRoomGateway(io, roomService, {
-  onEvent: async () => undefined,
+  onEvent: createTranscriptRoomEventHook(io, roomService, transcriptRepository),
 });
 
 let shutdownPromise: Promise<void> | null = null;

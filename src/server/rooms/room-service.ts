@@ -26,6 +26,7 @@ interface JoinInput {
 export class RoomService {
   private readonly presence = new Map<string, Map<string, Participant>>();
   private readonly meetingIds = new Map<string, string>();
+  private readonly meetingStartedAtMs = new Map<string, number>();
   private readonly roomLocks = new Map<string, Promise<void>>();
 
   constructor(
@@ -72,6 +73,9 @@ export class RoomService {
       members.set(participant.id, participant);
       this.presence.set(input.roomId, members);
       this.meetingIds.set(input.roomId, meetingId);
+      if (!this.meetingStartedAtMs.has(input.roomId)) {
+        this.meetingStartedAtMs.set(input.roomId, Date.now());
+      }
       return participant;
     });
   }
@@ -96,6 +100,11 @@ export class RoomService {
 
   getMeetingId(roomId: string): string | null {
     return this.meetingIds.get(roomId) ?? null;
+  }
+
+  getMeetingElapsedMs(roomId: string): number | null {
+    const startedAtMs = this.meetingStartedAtMs.get(roomId);
+    return startedAtMs === undefined ? null : Math.max(0, Date.now() - startedAtMs);
   }
 
   setMuted(roomId: string, participantId: string, muted: boolean): void {

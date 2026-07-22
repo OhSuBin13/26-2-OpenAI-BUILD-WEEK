@@ -1,5 +1,9 @@
 import type { RefObject } from "react";
-import type { Participant } from "../../shared/domain";
+import type { Participant, TranscriptSegment } from "../../shared/domain";
+import {
+  TranscriptPanel,
+  type TranscriptPartial,
+} from "../transcript/TranscriptPanel";
 import { ParticipantAvatar } from "./ParticipantAvatar";
 import type { RoomConnectionStatus } from "./use-room";
 
@@ -11,6 +15,8 @@ interface MeetingRoomProps {
   status: RoomConnectionStatus;
   muted: boolean;
   error: string | null;
+  transcriptFinals: TranscriptSegment[];
+  transcriptPartials: TranscriptPartial[];
   remoteAudioRef: RefObject<HTMLAudioElement | null>;
   onToggleMute(): void;
   onLeave(): void;
@@ -32,6 +38,8 @@ export function MeetingRoom({
   status,
   muted,
   error,
+  transcriptFinals,
+  transcriptPartials,
   remoteAudioRef,
   onToggleMute,
   onLeave,
@@ -146,6 +154,12 @@ export function MeetingRoom({
           </p>
         </section>
       ) : null}
+
+      <TranscriptPanel
+        participants={participants}
+        transcriptFinals={transcriptFinals}
+        transcriptPartials={transcriptPartials}
+      />
 
       <footer className="meeting-controls">
         <button

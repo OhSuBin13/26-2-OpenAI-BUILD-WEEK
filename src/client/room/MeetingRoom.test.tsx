@@ -4,7 +4,8 @@ import "@testing-library/jest-dom/vitest";
 import { createRef } from "react";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Participant } from "../../shared/domain";
+import type { Participant, TranscriptSegment } from "../../shared/domain";
+import type { TranscriptPartial } from "../transcript/TranscriptPanel";
 import { MeetingRoom } from "./MeetingRoom";
 
 const ROOM_ID = "00000000-0000-4000-8000-000000000010";
@@ -34,6 +35,8 @@ const baseProps = () => ({
   status: "connected" as const,
   muted: false,
   error: null,
+  transcriptFinals: [] as TranscriptSegment[],
+  transcriptPartials: [] as TranscriptPartial[],
   remoteAudioRef: createRef<HTMLAudioElement>(),
   onToggleMute: vi.fn(),
   onLeave: vi.fn(),
@@ -117,5 +120,37 @@ describe("MeetingRoom", () => {
 
     expect(screen.getByTestId("mute")).toBeDisabled();
     expect(props.onToggleMute).not.toHaveBeenCalled();
+  });
+
+  it("renders synchronized final and partial transcript state", () => {
+    const props = baseProps();
+    props.transcriptFinals = [
+      {
+        id: "00000000-0000-4000-8000-000000000020",
+        itemId: "final-item",
+        participantId: SELF_ID,
+        displayName: "민지",
+        text: "확정된 회의록",
+        startMs: 0,
+        endMs: 1_000,
+      },
+    ];
+    props.transcriptPartials = [
+      {
+        participantId: SELF_ID,
+        itemId: "partial-item",
+        text: "기록 중",
+      },
+    ];
+
+    render(<MeetingRoom {...props} />);
+
+    expect(screen.getByTestId("transcript-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("transcript-final")).toHaveTextContent(
+      "확정된 회의록",
+    );
+    expect(screen.getByTestId("transcript-partial")).toHaveTextContent(
+      "기록 중",
+    );
   });
 });

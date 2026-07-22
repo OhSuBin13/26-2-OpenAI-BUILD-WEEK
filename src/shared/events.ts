@@ -38,7 +38,12 @@ export const ClientRoomEventSchema = z.discriminatedUnion("type", [
 export type ClientRoomEvent = z.infer<typeof ClientRoomEventSchema>;
 
 export const ServerRoomEventSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("room.snapshot"), selfParticipantId: z.uuid(), participants: z.array(ParticipantSchema).max(2) }),
+  z.object({
+    type: z.literal("room.snapshot"),
+    selfParticipantId: z.uuid(),
+    meetingElapsedMs: z.number().int().nonnegative().optional(),
+    participants: z.array(ParticipantSchema).max(2),
+  }),
   z.object({ type: z.literal("participant.joined"), participant: ParticipantSchema }),
   z.object({ type: z.literal("participant.left"), participantId: z.uuid() }),
   z.object({ type: z.literal("participant.mic_changed"), participantId: z.uuid(), muted: z.boolean() }),
