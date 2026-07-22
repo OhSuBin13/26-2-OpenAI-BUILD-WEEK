@@ -17,11 +17,13 @@ describe("parseEnv", () => {
       OPENAI_TRANSCRIBE_MODEL: "gpt-realtime-whisper",
       OPENAI_REALTIME_MODEL: "gpt-realtime-2.1-mini",
       OPENAI_SOL_MODEL: "gpt-5.6-sol",
+      OPENAI_EMBEDDING_MODEL: "text-embedding-3-small",
       DEMO_FAKE_OPENAI: "1",
       ENABLE_TEST_ROUTES: "0",
       MAX_MEETING_MINUTES: 20,
       MAX_AI_REQUESTS_PER_ROOM: 20,
       SOL_TIMEOUT_MS: 15_000,
+      EMBEDDING_TIMEOUT_MS: 3_000,
     });
   });
 
@@ -33,6 +35,7 @@ describe("parseEnv", () => {
       MAX_MEETING_MINUTES: "30",
       MAX_AI_REQUESTS_PER_ROOM: "12",
       SOL_TIMEOUT_MS: "9000",
+      EMBEDDING_TIMEOUT_MS: "1200",
     });
 
     expect(env).toMatchObject({
@@ -40,6 +43,7 @@ describe("parseEnv", () => {
       MAX_MEETING_MINUTES: 30,
       MAX_AI_REQUESTS_PER_ROOM: 12,
       SOL_TIMEOUT_MS: 9_000,
+      EMBEDDING_TIMEOUT_MS: 1_200,
     });
   });
 

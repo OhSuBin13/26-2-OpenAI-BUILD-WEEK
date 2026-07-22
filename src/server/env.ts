@@ -10,11 +10,15 @@ export const EnvSchema = z
     OPENAI_TRANSCRIBE_MODEL: z.literal("gpt-realtime-whisper").default("gpt-realtime-whisper"),
     OPENAI_REALTIME_MODEL: z.literal("gpt-realtime-2.1-mini").default("gpt-realtime-2.1-mini"),
     OPENAI_SOL_MODEL: z.literal("gpt-5.6-sol").default("gpt-5.6-sol"),
+    OPENAI_EMBEDDING_MODEL: z
+      .literal("text-embedding-3-small")
+      .default("text-embedding-3-small"),
     DEMO_FAKE_OPENAI: z.enum(["0", "1"]).default("0"),
     ENABLE_TEST_ROUTES: z.enum(["0", "1"]).default("0"),
     MAX_MEETING_MINUTES: z.coerce.number().int().positive().default(20),
     MAX_AI_REQUESTS_PER_ROOM: z.coerce.number().int().positive().default(20),
     SOL_TIMEOUT_MS: z.coerce.number().int().positive().default(15_000),
+    EMBEDDING_TIMEOUT_MS: z.coerce.number().int().positive().default(3_000),
   })
   .superRefine((env, ctx) => {
     if (env.DEMO_FAKE_OPENAI === "0" && env.OPENAI_API_KEY.length === 0) {
