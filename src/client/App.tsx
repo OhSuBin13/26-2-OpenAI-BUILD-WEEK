@@ -19,7 +19,7 @@ export function App() {
   };
 
   const leave = () => {
-    room.leave();
+    void room.leave();
     setActiveRoom(null);
   };
 
@@ -34,6 +34,8 @@ export function App() {
       status={room.status}
       muted={room.muted}
       error={room.error}
+      transcriptFinals={room.transcriptFinals}
+      transcriptPartials={room.transcriptPartials}
       remoteAudioRef={room.remoteAudioRef}
       onToggleMute={room.toggleMute}
       onLeave={leave}

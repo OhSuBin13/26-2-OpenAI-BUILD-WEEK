@@ -61,6 +61,7 @@ describe("server composition", () => {
           APP_ORIGIN: origin,
           DATABASE_URL: "postgres://recap:recap@localhost:5432/recap",
           DEMO_FAKE_OPENAI: "1",
+          OPENAI_API_KEY: "",
         },
       });
       child.stdout.on("data", (chunk) => {

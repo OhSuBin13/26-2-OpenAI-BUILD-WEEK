@@ -72,4 +72,51 @@ describe("createApp", () => {
     expect(JSON.stringify(response.body)).not.toContain("stack");
     expect(errorLog).toHaveBeenCalledWith("Request failed", internalError);
   });
+
+  it("authorizes transcription with both the room capability and active presence", async () => {
+    const rooms = { create: vi.fn(async () => room) };
+    const participantId = randomUUID();
+    const verifyCapability = vi.fn(async (_roomId: string, capabilityHash: string) =>
+      capabilityHash === hashCapability("valid-room-secret"),
+    );
+    const getParticipant = vi.fn(
+      (_roomId: string, candidateParticipantId: string) =>
+        candidateParticipantId === participantId
+          ? {
+              id: participantId,
+              displayName: "민지",
+              roleLabel: "PM",
+              muted: false,
+              speaking: false,
+              connected: true,
+            }
+          : null,
+    );
+    const fetchImpl = vi.fn(async () => new Response("answer-sdp"));
+    const app = createApp(env, rooms, {
+      transcription: { verifyCapability, getParticipant, fetchImpl },
+    });
+    const exchange = (secret: string, candidateParticipantId: string) =>
+      request(app)
+        .post("/api/openai/transcription-session")
+        .set("Content-Type", "application/sdp")
+        .set("Authorization", `Bearer ${secret}`)
+        .set("X-Room-Id", room.id)
+        .set("X-Participant-Id", candidateParticipantId)
+        .send("offer-sdp");
+
+    const copiedCapability = await exchange("wrong-room-secret", participantId);
+    const staleParticipant = await exchange("valid-room-secret", randomUUID());
+    const activeParticipant = await exchange("valid-room-secret", participantId);
+
+    expect(copiedCapability.status).toBe(401);
+    expect(staleParticipant.status).toBe(401);
+    expect(activeParticipant.status).toBe(200);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(verifyCapability).toHaveBeenCalledWith(
+      room.id,
+      hashCapability("valid-room-secret"),
+    );
+    expect(getParticipant).toHaveBeenCalledWith(room.id, participantId);
+  });
 });

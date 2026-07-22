@@ -24,10 +24,22 @@ const roomState = vi.hoisted(() => ({
   status: "connected" as const,
   error: null,
   muted: false,
+  transcriptFinals: [
+    {
+      id: "00000000-0000-4000-8000-000000000020",
+      itemId: "wired-final",
+      participantId: "00000000-0000-4000-8000-000000000001",
+      displayName: "민지",
+      text: "앱에서 전달된 회의록",
+      startMs: 0,
+      endMs: 1_000,
+    },
+  ],
+  transcriptPartials: [],
   remoteAudioRef: { current: null },
   join: vi.fn(async () => undefined),
   toggleMute: vi.fn(),
-  leave: vi.fn(),
+  leave: vi.fn(async () => undefined),
 }));
 
 vi.mock("./room/use-room", () => ({ useRoom: () => roomState }));
@@ -68,6 +80,9 @@ describe("App", () => {
       roleLabel: "PM",
     });
     expect(screen.getByTestId("participant-list")).toBeInTheDocument();
+    expect(screen.getByTestId("transcript-final")).toHaveTextContent(
+      "앱에서 전달된 회의록",
+    );
 
     fireEvent.click(screen.getByTestId("leave-room"));
     expect(roomState.leave).toHaveBeenCalledTimes(1);

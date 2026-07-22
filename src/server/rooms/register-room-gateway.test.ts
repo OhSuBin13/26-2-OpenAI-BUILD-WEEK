@@ -174,7 +174,11 @@ describe("registerRoomGateway", () => {
     );
 
     expect(first.snapshot.participants).toHaveLength(1);
+    expect(first.snapshot.meetingElapsedMs).toEqual(expect.any(Number));
     expect(second.snapshot.participants).toHaveLength(2);
+    expect(second.snapshot.meetingElapsedMs).toBeGreaterThanOrEqual(
+      first.snapshot.meetingElapsedMs ?? 0,
+    );
     await expect(joined).resolves.toMatchObject({
       participant: { id: second.snapshot.selfParticipantId, displayName: "준호" },
     });

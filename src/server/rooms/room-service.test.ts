@@ -111,6 +111,29 @@ describe("RoomService", () => {
     expect(participantStore.markLeft).toHaveBeenCalledWith(participant.id);
   });
 
+  it("keeps one meeting timeline across participants and later rejoins", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-21T09:00:00.000Z"));
+    try {
+      const { service } = createFixture();
+      const first = await service.join(joinInput("민지"));
+      expect(service.getMeetingElapsedMs(roomId)).toBe(0);
+
+      vi.advanceTimersByTime(45_000);
+      const second = await service.join(joinInput("준호"));
+      expect(service.getMeetingElapsedMs(roomId)).toBe(45_000);
+
+      await service.leave(roomId, first.id);
+      vi.advanceTimersByTime(15_000);
+      await service.join(joinInput("재입장"));
+      expect(service.getMeetingElapsedMs(roomId)).toBe(60_000);
+
+      await service.leave(roomId, second.id);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("drains pending presence persistence before shutdown", async () => {
     let releaseMarkLeft: () => void = () => {};
     const markLeftGate = new Promise<void>((resolve) => {

@@ -122,6 +122,7 @@ export function registerRoomGateway(
       parseServerEvent({
         type: "room.snapshot",
         selfParticipantId: participantId,
+        meetingElapsedMs: rooms.getMeetingElapsedMs(roomId) ?? 0,
         participants: rooms.snapshot(roomId),
       }),
     );

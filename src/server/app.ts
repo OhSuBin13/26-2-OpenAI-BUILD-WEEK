@@ -2,10 +2,23 @@ import express, { type NextFunction, type Request, type Response } from "express
 import type { Env } from "./env";
 import type { RoomRepository } from "./repositories/room-repository";
 import { createCapability, hashCapability } from "./rooms/capability";
+import { registerTranscriptionRoute } from "./transcription/register-transcription-route";
 
 type RoomCreator = Pick<RoomRepository, "create">;
 
-export function createApp(env: Env, rooms: RoomCreator) {
+export interface CreateAppDependencies {
+  transcription?: {
+    verifyCapability(roomId: string, capabilityHash: string): Promise<boolean>;
+    getParticipant(roomId: string, participantId: string): unknown | null;
+    fetchImpl?: typeof fetch;
+  };
+}
+
+export function createApp(
+  env: Env,
+  rooms: RoomCreator,
+  dependencies: CreateAppDependencies = {},
+) {
   const app = express();
   app.use(express.json());
 
@@ -23,6 +36,25 @@ export function createApp(env: Env, rooms: RoomCreator) {
       next(error);
     }
   });
+
+  if (dependencies.transcription) {
+    const transcription = dependencies.transcription;
+    registerTranscriptionRoute(app, {
+      apiKey: env.OPENAI_API_KEY,
+      model: env.OPENAI_TRANSCRIBE_MODEL,
+      fetchImpl: transcription.fetchImpl,
+      authorize: async (roomId, participantId, secret) => {
+        const capabilityValid = await transcription.verifyCapability(
+          roomId,
+          hashCapability(secret),
+        );
+        return (
+          capabilityValid &&
+          transcription.getParticipant(roomId, participantId) !== null
+        );
+      },
+    });
+  }
 
   app.use((error: unknown, _request: Request, response: Response, _next: NextFunction) => {
     console.error("Request failed", error);
